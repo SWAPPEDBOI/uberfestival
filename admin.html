@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>컴퓨터과학부 - 관리자</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Gothic:wght@400;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg1: #060606;
+    --bg2: #161616;
+    --card: #1a1a1a;
+    --text: #f3efe4;
+    --sub: #a9a294;
+    --accent: #d4af37;
+    --accent2: #f0d98c;
+    --border: rgba(212,175,55,0.3);
+  }
+
+  body {
+    font-family: 'Nanum Gothic', sans-serif;
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height: 100vh;
+    color: var(--text);
+    padding-bottom: 60px;
+  }
+
+  /* 로그인 박스 */
+  .login-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .login-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 24px;
+    padding: 40px 32px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+
+  .login-box h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 24px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .login-box p {
+    color: var(--sub);
+    font-size: 13px;
+    margin-bottom: 22px;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--bg1);
+    color: var(--text);
+    font-size: 14.5px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  input:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .login-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px 0;
+    border: none;
+    border-radius: 14px;
+    background: var(--accent);
+    color: #060606;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .msg {
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    min-height: 16px;
+  }
+  .msg.err { color: #ff8fa3; }
+  .msg.ok { color: #6ee6a8; }
+
+  /* 관리자 편집 화면 */
+  #adminPanel { display: none; }
+  #adminPanel.show { display: block; }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+  }
+
+  header h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 32px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 1px;
+  }
+
+  header p {
+    margin-top: 8px;
+    color: var(--sub);
+    font-size: 13.5px;
+  }
+
+  .top-bar {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .top-bar a, .top-bar button {
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--sub);
+    text-decoration: none;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+
+  .booth-list {
+    max-width: 900px;
+    margin: 20px auto 0;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .booth-edit {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+
+  .booth-edit .row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .booth-edit .row .emoji-input {
+    width: 70px;
+    text-align: center;
+    flex: none;
+  }
+
+  .field-label {
+    font-size: 11.5px;
+    color: var(--sub);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .booth-edit textarea {
+    resize: vertical;
+    min-height: 70px;
+  }
+
+  .save-bar {
+    max-width: 900px;
+    margin: 24px auto 0;
+    padding: 0 24px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .save-btn {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #060606;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 36px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <div class="login-wrap" id="loginWrap">
+    <div class="login-box">
+      <h1>🔧 컴퓨터과학부 관리자 로그인</h1>
+      <p>부스 안내 내용을 수정하려면 관리자 비밀번호를 입력하세요.</p>
+      <input type="password" id="passwordInput" placeholder="관리자 비밀번호">
+      <button class="login-btn" id="adminLoginBtn">로그인</button>
+      <div class="msg" id="loginMsg"></div>
+    </div>
+  </div>
+
+  <div id="adminPanel">
+    <div class="top-bar">
+      <a href="booths.html">👀 부스 페이지 보기</a>
+      <button id="adminLogoutBtn">로그아웃</button>
+    </div>
+
+    <header>
+      <h1>🛠️ 부스 내용 관리</h1>
+      <p>내용을 수정한 뒤 아래 "저장하기" 버튼을 눌러야 반영됩니다.</p>
+    </header>
+
+    <div class="booth-list" id="boothList"></div>
+
+    <div class="save-bar">
+      <button class="save-btn" id="saveBtn">저장하기</button>
+    </div>
+    <div class="msg" id="saveMsg" style="text-align:center; margin-top:10px;"></div>
+  </div>
+
+  <script>
+    const loginWrap = document.getElementById('loginWrap');
+    const adminPanel = document.getElementById('adminPanel');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginMsg = document.getElementById('loginMsg');
+    const boothList = document.getElementById('boothList');
+    const saveMsg = document.getElementById('saveMsg');
+
+    let adminPassword = '';
+    let booths = [];
+
+    async function adminLogin() {
+      const password = passwordInput.value.trim();
+      if (!password) return;
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          adminPassword = password;
+          await loadBooths();
+          loginWrap.style.display = 'none';
+          adminPanel.classList.add('show');
+        } else {
+          loginMsg.textContent = data.message || '비밀번호가 올바르지 않습니다.';
+          loginMsg.className = 'msg err';
+        }
+      } catch (e) {
+        loginMsg.textContent = '서버에 연결할 수 없습니다.';
+        loginMsg.className = 'msg err';
+      }
+    }
+
+    async function loadBooths() {
+      const res = await fetch('/api/booths');
+      const data = await res.json();
+      booths = (data.success && data.booths) || [];
+      renderBoothList();
+    }
+
+    function renderBoothList() {
+      boothList.innerHTML = booths.map((b, i) => `
+        <div class="booth-edit">
+          <div class="row">
+            <div class="emoji-input">
+              <span class="field-label">이모지</span>
+              <input type="text" data-field="emoji" data-index="${i}" value="${b.emoji}" maxlength="4">
+            </div>
+            <div style="flex:1">
+              <span class="field-label">부스명</span>
+              <input type="text" data-field="name" data-index="${i}" value="${b.name}">
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <span class="field-label">위치</span>
+              <input type="text" data-field="location" data-index="${i}" value="${b.location}">
+            </div>
+            <div style="flex:1">
+              <span class="field-label">태그 (쉼표로 구분)</span>
+              <input type="text" data-field="tags" data-index="${i}" value="${b.tags.join(', ')}">
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <span class="field-label">설명</span>
+              <textarea data-field="desc" data-index="${i}">${b.desc}</textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function collectBoothsFromForm() {
+      return booths.map((b, i) => {
+        const emoji = boothList.querySelector(`[data-field="emoji"][data-index="${i}"]`).value.trim();
+        const name = boothList.querySelector(`[data-field="name"][data-index="${i}"]`).value.trim();
+        const location = boothList.querySelector(`[data-field="location"][data-index="${i}"]`).value.trim();
+        const tags = boothList.querySelector(`[data-field="tags"][data-index="${i}"]`).value
+          .split(',').map(t => t.trim()).filter(Boolean);
+        const desc = boothList.querySelector(`[data-field="desc"][data-index="${i}"]`).value.trim();
+        return { emoji, name, location, tags, desc };
+      });
+    }
+
+    async function saveBooths() {
+      const updated = collectBoothsFromForm();
+      saveMsg.textContent = '저장 중...';
+      saveMsg.className = 'msg';
+
+      try {
+        const res = await fetch('/api/admin/booths', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, booths: updated })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          booths = data.booths;
+          saveMsg.textContent = '✅ 저장되었습니다!';
+          saveMsg.className = 'msg ok';
+        } else {
+          saveMsg.textContent = data.message || '저장에 실패했습니다.';
+          saveMsg.className = 'msg err';
+        }
+      } catch (e) {
+        saveMsg.textContent = '서버에 연결할 수 없습니다.';
+        saveMsg.className = 'msg err';
+      }
+    }
+
+    document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
+    passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') adminLogin(); });
+    document.getElementById('saveBtn').addEventListener('click', saveBooths);
+    document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+      adminPassword = '';
+      adminPanel.classList.remove('show');
+      loginWrap.style.display = 'flex';
+      passwordInput.value = '';
+      loginMsg.textContent = '';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>컴퓨터과학부 홈페이지</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Gothic:wght@400;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg1: #060606;
+    --bg2: #161616;
+    --card: #1a1a1a;
+    --text: #f3efe4;
+    --sub: #a9a294;
+    --accent: #d4af37;
+    --accent2: #f0d98c;
+    --border: rgba(212,175,55,0.3);
+  }
+
+  body {
+    font-family: 'Nanum Gothic', sans-serif;
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height: 100vh;
+    color: var(--text);
+    padding-bottom: 60px;
+  }
+
+  header {
+    text-align: center;
+    padding: 50px 20px 30px;
+  }
+
+  header h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 42px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 2px;
+  }
+
+  header p {
+    margin-top: 10px;
+    color: var(--sub);
+    font-size: 15px;
+  }
+
+  .grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+  }
+
+  .booth-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 26px 20px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    border: 1.5px solid var(--border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+  }
+
+  .booth-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.55);
+    border-color: var(--accent);
+  }
+
+  .booth-card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent), 0 12px 28px rgba(0,0,0,0.55);
+  }
+
+  .booth-emoji {
+    font-size: 44px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .booth-name {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 19px;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+
+  .booth-loc {
+    font-size: 13px;
+    color: var(--sub);
+  }
+
+  .booth-num {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #060606;
+    background: var(--accent);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 설명 패널 */
+  .detail-wrap {
+    max-width: 1100px;
+    margin: 32px auto 0;
+    padding: 0 24px;
+  }
+
+  .detail {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1.5px solid var(--border);
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .detail.show { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .detail-emoji {
+    font-size: 52px;
+  }
+
+  .detail-title {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .detail-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .tag {
+    background: var(--bg2);
+    color: var(--accent2);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+  }
+
+  .detail-desc {
+    font-size: 15.5px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+
+  .placeholder {
+    text-align: center;
+    color: var(--sub);
+    font-size: 15px;
+    padding: 40px 0;
+  }
+
+  .user-bar {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 24px 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--sub);
+  }
+
+  .user-bar b {
+    color: var(--accent);
+  }
+
+  .admin-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 12.5px;
+    font-family: inherit;
+    color: var(--sub);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .admin-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .user-info {
+    position: relative;
+    cursor: pointer;
+    padding: 5px 4px;
+  }
+
+  .user-tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.55);
+    z-index: 50;
+    text-align: left;
+  }
+
+  .user-tooltip .tip-points { color: var(--accent); }
+  .user-tooltip .tip-progress { color: var(--accent2); }
+
+  .user-info:hover .user-tooltip,
+  .user-info.show-tooltip .user-tooltip {
+    display: block;
+  }
+
+  .finish-btn {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #060606;
+    border: none;
+    border-radius: 999px;
+    padding: 5px 16px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .logout-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 12.5px;
+    font-family: inherit;
+    color: var(--sub);
+    cursor: pointer;
+  }
+
+  .logout-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .booth-check {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 15px;
+  }
+
+  .complete-btn {
+    margin-top: 20px;
+    background: var(--accent);
+    color: #060606;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .complete-btn.done {
+    background: #2a2a2a;
+    color: #8a8a8a;
+    cursor: default;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    padding: 20px;
+  }
+
+  .modal-overlay.show {
+    display: flex;
+  }
+
+  .modal-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 24px;
+    padding: 36px 28px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    animation: fadeIn 0.25s ease;
+  }
+
+  .modal-box .final-points {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 34px;
+    color: var(--accent);
+    margin: 14px 0 6px;
+  }
+
+  .modal-box .final-sub {
+    color: var(--sub);
+    font-size: 13.5px;
+    margin-bottom: 18px;
+  }
+
+  .success-badge {
+    display: inline-block;
+    margin: 6px 0 14px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #060606;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 18px;
+  }
+
+  .modal-close {
+    margin-top: 10px;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 9px 24px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--sub);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <div class="user-bar">
+    <a href="admin.html" class="admin-btn">🔧 부스 관리</a>
+    <div class="user-info" id="userInfo">
+      👤 <b id="currentUser"></b>님
+      <div class="user-tooltip">
+        <div class="tip-points">🏆 누적 포인트: <span id="pointsValue">0</span>P</div>
+        <div class="tip-progress">✅ 완료: <span id="progressValue">0</span>/8</div>
+      </div>
+    </div>
+    <button class="finish-btn" id="finishBtn">끝내기</button>
+    <button class="logout-btn" id="logoutBtn">로그아웃</button>
+  </div>
+
+  <header>
+    <h1>💻 컴퓨터과학부 홈페이지</h1>
+    <p>부스를 클릭하면 아래에서 자세한 설명을 볼 수 있어요!</p>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="detail-wrap">
+    <div class="detail" id="detail"></div>
+    <p class="placeholder" id="placeholder">👆 위에서 부스를 선택해주세요</p>
+  </div>
+
+  <div class="modal-overlay" id="finishModal">
+    <div class="modal-box" id="finishModalBox"></div>
+  </div>
+
+  <script>
+    // 로그인 체크: 아이디가 없으면 로그인 페이지로 이동
+    const currentUser = localStorage.getItem('festivalUser');
+    if (!currentUser) {
+      location.href = 'login.html';
+    } else {
+      document.getElementById('currentUser').textContent = currentUser;
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('festivalUser');
+      location.href = 'login.html';
+    });
+
+    // 이름을 터치/클릭하면 포인트 툴팁이 뜨도록 (모바일은 hover가 안 되므로 클릭으로 토글)
+    const userInfo = document.getElementById('userInfo');
+    userInfo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userInfo.classList.toggle('show-tooltip');
+    });
+    document.addEventListener('click', () => {
+      userInfo.classList.remove('show-tooltip');
+    });
+
+    // 부스 정보는 서버(data/booths.json)에서 불러옵니다. 관리자 페이지(admin.html)에서 수정 가능합니다.
+    let booths = [];
+
+    const grid = document.getElementById('grid');
+    const detail = document.getElementById('detail');
+    const placeholder = document.getElementById('placeholder');
+    const pointsValue = document.getElementById('pointsValue');
+    const progressValue = document.getElementById('progressValue');
+    const finishModal = document.getElementById('finishModal');
+    const finishModalBox = document.getElementById('finishModalBox');
+
+    let points = 0;
+    let completed = [];
+    let selectedIndex = null;
+
+    function renderPointsBar() {
+      pointsValue.textContent = points;
+      progressValue.textContent = completed.length;
+    }
+
+    function renderCards() {
+      document.querySelectorAll('.booth-card').forEach((card, i) => {
+        card.querySelector('.booth-check').textContent = completed.includes(i) ? '✅' : '';
+      });
+    }
+
+    async function loadProgress() {
+      try {
+        const res = await fetch(`/api/progress?id=${encodeURIComponent(currentUser)}`);
+        const data = await res.json();
+        if (res.ok && data.success) {
+          points = data.points;
+          completed = data.completed;
+        }
+      } catch (e) {
+        // 서버 연결 실패 시 0포인트로 표시
+      }
+      renderPointsBar();
+      renderCards();
+    }
+
+    async function fetchBooths() {
+      try {
+        const res = await fetch('/api/booths');
+        const data = await res.json();
+        if (res.ok && data.success && data.booths.length) {
+          booths = data.booths;
+        }
+      } catch (e) {
+        // 서버 연결 실패 시 빈 목록으로 표시
+      }
+    }
+
+    function renderGrid() {
+      grid.innerHTML = '';
+      booths.forEach((b, i) => {
+        const card = document.createElement('div');
+        card.className = 'booth-card';
+        card.dataset.index = i;
+        card.innerHTML = `
+          <div class="booth-num">${i + 1}</div>
+          <div class="booth-check"></div>
+          <span class="booth-emoji">${b.emoji}</span>
+          <div class="booth-name">${b.name}</div>
+          <div class="booth-loc">${b.location}</div>
+        `;
+        card.addEventListener('click', () => selectBooth(i));
+        grid.appendChild(card);
+      });
+    }
+
+    function renderDetail(i) {
+      const b = booths[i];
+      const isDone = completed.includes(i);
+
+      detail.innerHTML = `
+        <div class="detail-header">
+          <div class="detail-emoji">${b.emoji}</div>
+          <div>
+            <div class="detail-title">${b.name}</div>
+            <div class="detail-meta">
+              <span class="tag">📍 ${b.location}</span>
+              ${b.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="detail-desc">${b.desc}</div>
+        <button class="complete-btn ${isDone ? 'done' : ''}" id="completeBtn">
+          ${isDone ? '✅ 참여 완료됨 (100P 적립됨)' : '참여 완료하고 100P 받기'}
+        </button>
+      `;
+
+      document.getElementById('completeBtn').addEventListener('click', () => completeBooth(i));
+    }
+
+    function selectBooth(i) {
+      selectedIndex = i;
+
+      document.querySelectorAll('.booth-card').forEach(c => c.classList.remove('active'));
+      document.querySelector(`.booth-card[data-index="${i}"]`).classList.add('active');
+
+      renderDetail(i);
+
+      detail.classList.add('show');
+      placeholder.style.display = 'none';
+      detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function completeBooth(i) {
+      if (completed.includes(i)) return;
+
+      try {
+        const res = await fetch('/api/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: currentUser, boothIndex: i })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          points = data.points;
+          completed = data.completed;
+          renderPointsBar();
+          renderCards();
+          if (selectedIndex === i) renderDetail(i);
+        } else {
+          alert(data.message || '참여 완료 처리에 실패했습니다.');
+        }
+      } catch (e) {
+        alert('서버에 연결할 수 없습니다.');
+      }
+    }
+
+    document.getElementById('finishBtn').addEventListener('click', () => {
+      const allDone = completed.length >= booths.length;
+
+      finishModalBox.innerHTML = allDone
+        ? `
+          <div class="success-badge">🏅 인증완료</div>
+          <div class="final-sub">모든 부스 참여 성공!</div>
+          <div class="final-points">${points}P</div>
+          <div class="final-sub">최종 적립 포인트</div>
+          <button class="modal-close" id="modalCloseBtn">닫기</button>
+        `
+        : `
+          <div class="final-points">${points}P</div>
+          <div class="final-sub">최종 적립 포인트 (완료 ${completed.length}/${booths.length}개 부스)</div>
+          <button class="modal-close" id="modalCloseBtn">닫기</button>
+        `;
+
+      finishModal.classList.add('show');
+      document.getElementById('modalCloseBtn').addEventListener('click', () => {
+        finishModal.classList.remove('show');
+      });
+    });
+
+    finishModal.addEventListener('click', (e) => {
+      if (e.target === finishModal) finishModal.classList.remove('show');
+    });
+
+    async function init() {
+      await fetchBooths();
+      renderGrid();
+      await loadProgress();
+    }
+
+    init();
+  </script>
+</body>
+</html>

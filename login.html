@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>컴퓨터과학부 - 로그인 / 회원가입</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Gothic:wght@400;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg1: #060606;
+    --bg2: #161616;
+    --card: #1a1a1a;
+    --text: #f3efe4;
+    --sub: #a9a294;
+    --accent: #d4af37;
+    --accent2: #f0d98c;
+    --border: rgba(212,175,55,0.3);
+  }
+
+  body {
+    font-family: 'Nanum Gothic', sans-serif;
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    padding: 20px;
+  }
+
+  .box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 24px;
+    padding: 40px 32px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+
+  h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 28px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .desc {
+    color: var(--sub);
+    font-size: 13.5px;
+    margin-bottom: 28px;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--bg1);
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    margin-bottom: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input:focus {
+    border-color: var(--accent);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  button {
+    flex: 1;
+    padding: 13px 0;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+  }
+
+  button:active { transform: scale(0.97); }
+
+  .btn-login {
+    background: var(--accent2);
+    color: #060606;
+  }
+
+  .btn-signup {
+    background: var(--accent);
+    color: #060606;
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .msg {
+    margin-top: 16px;
+    font-size: 13.5px;
+    min-height: 18px;
+    font-weight: 700;
+  }
+
+  .msg.ok { color: #6ee6a8; }
+  .msg.err { color: #ff8fa3; }
+
+  .hint {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--sub);
+  }
+</style>
+</head>
+<body>
+
+  <div class="box">
+    <h1>💻 컴퓨터과학부 로그인</h1>
+    <div class="desc">아이디만 입력하면 돼요. 비밀번호는 없어요!</div>
+
+    <input type="text" id="idInput" placeholder="아이디 입력 (영문/숫자, 2~20자)" maxlength="20" autocomplete="off">
+
+    <div class="btn-row">
+      <button class="btn-login" id="loginBtn">로그인</button>
+      <button class="btn-signup" id="signupBtn">회원가입</button>
+    </div>
+
+    <div class="msg" id="msg"></div>
+    <div class="hint">처음이면 회원가입, 이미 만들었으면 로그인!</div>
+  </div>
+
+  <script>
+    const idInput = document.getElementById('idInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const msg = document.getElementById('msg');
+
+    function showMsg(text, ok) {
+      msg.textContent = text;
+      msg.className = 'msg ' + (ok ? 'ok' : 'err');
+    }
+
+    function setLoading(loading) {
+      loginBtn.disabled = loading;
+      signupBtn.disabled = loading;
+    }
+
+    async function signup() {
+      const id = idInput.value.trim();
+      if (!id) return showMsg('아이디를 입력해주세요.', false);
+
+      setLoading(true);
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showMsg('회원가입 완료! 자동으로 로그인할게요.', true);
+          localStorage.setItem('festivalUser', id);
+          setTimeout(() => location.href = 'booths.html', 700);
+        } else {
+          showMsg(data.message || '회원가입에 실패했습니다.', false);
+        }
+      } catch (e) {
+        showMsg('서버에 연결할 수 없습니다.', false);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function login() {
+      const id = idInput.value.trim();
+      if (!id) return showMsg('아이디를 입력해주세요.', false);
+
+      setLoading(true);
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showMsg('로그인 성공!', true);
+          localStorage.setItem('festivalUser', id);
+          setTimeout(() => location.href = 'booths.html', 500);
+        } else {
+          showMsg(data.message || '로그인에 실패했습니다.', false);
+        }
+      } catch (e) {
+        showMsg('서버에 연결할 수 없습니다.', false);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loginBtn.addEventListener('click', login);
+    signupBtn.addEventListener('click', signup);
+    idInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') login();
+    });
+  </script>
+</body>
+</html>

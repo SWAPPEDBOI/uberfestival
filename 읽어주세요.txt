@@ -1,0 +1,16 @@
+Node.js를 지원하는 호스팅(Vercel, Render, Cloudtype 등)에 올릴 것이라고 가정. 그에 맞춰 서버는 **Node.js + Express**로 구현하고 데이터는 JSON 파일(`data/users.json`, `data/booths.json`)로 저장하는 방식으로 진행
+
+다만  Vercel은 서버리스 환경이라 파일 쓰기가 영구 저장되지 않아서, 이 JSON 파일 기반 저장 방식은 Render나 Cloudtype처럼 서버가 계속 켜져 있는 호스팅에서만 제대로 동작한다고 말씀드렸습니다. Vercel에 올리실 경우엔 별도의 DB(Vercel KV, Postgres 등)로 바꿔야 합니다.
+
+
+실제 서버 버전:
+- data/booths.json — 부스 데이터를 파일로 분리 (더 이상 booths.html에 하드코딩 안 함)
+- server.js — GET /api/booths(공개 조회), POST /api/admin/login(비밀번호 확인), PUT /api/admin/booths(수정·저장) 추가. 비밀번호는 ADMIN_PASSWORD 환경변수로 관리하고, 설정 안 하면 기본값 admin1234 사용(경고 로그 출력)
+- admin.html — 새 관리자 페이지. 비밀번호 로그인 후 8개 부스의 이모지/이름/위치/태그/설명을 수정하고 "저장하기"로 반영
+- booths.html — 상단에 "🔧 관리자" 링크 추가, 부스 데이터를 서버에서 fetch하도록 변경
+
+미리보기 버전:
+- preview-admin.html — 서버 없이 동작하는 관리자 미리보기. 데모 비밀번호는 화면에 그대로 표시된 admin1234. 저장하면 localStorage에 기록됨
+- preview-logged-in.html — preview-admin.html에서 저장한 내용을 localStorage로 불러와 반영 (없으면 기본값 사용), "관리자" 링크 추가
+
+⚠️ 실제로 배포하실 때는 반드시 호스팅 환경변수에 ADMIN_PASSWORD를 직접 설정해주세요. 안 하면 기본 비밀번호(admin1234)로 누구나 들어갈 수 있습니다.

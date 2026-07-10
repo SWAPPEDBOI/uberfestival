@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>컴퓨터과학부 - 관리자 (미리보기)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Gothic:wght@400;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg1: #060606;
+    --bg2: #161616;
+    --card: #1a1a1a;
+    --text: #f3efe4;
+    --sub: #a9a294;
+    --accent: #d4af37;
+    --accent2: #f0d98c;
+    --border: rgba(212,175,55,0.3);
+  }
+
+  body {
+    font-family: 'Nanum Gothic', sans-serif;
+    background: linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height: 100vh;
+    color: var(--text);
+    padding-bottom: 60px;
+  }
+
+  .preview-banner {
+    background: #000;
+    color: var(--accent2);
+    text-align: center;
+    font-size: 12.5px;
+    padding: 8px 12px;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* 로그인 박스 */
+  .login-wrap {
+    min-height: calc(100vh - 34px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .login-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 24px;
+    padding: 40px 32px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+
+  .login-box h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 24px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .login-box p {
+    color: var(--sub);
+    font-size: 13px;
+    margin-bottom: 22px;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--bg1);
+    color: var(--text);
+    font-size: 14.5px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  input:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .login-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px 0;
+    border: none;
+    border-radius: 14px;
+    background: var(--accent);
+    color: #060606;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .msg {
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    min-height: 16px;
+  }
+  .msg.err { color: #ff8fa3; }
+  .msg.ok { color: #6ee6a8; }
+
+  /* 관리자 편집 화면 */
+  #adminPanel { display: none; }
+  #adminPanel.show { display: block; }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+  }
+
+  header h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 32px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 1px;
+  }
+
+  header p {
+    margin-top: 8px;
+    color: var(--sub);
+    font-size: 13.5px;
+  }
+
+  .top-bar {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .top-bar a, .top-bar button {
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--sub);
+    text-decoration: none;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+
+  .booth-list {
+    max-width: 900px;
+    margin: 20px auto 0;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .booth-edit {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+
+  .booth-edit .row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .booth-edit .row .emoji-input {
+    width: 70px;
+    text-align: center;
+    flex: none;
+  }
+
+  .field-label {
+    font-size: 11.5px;
+    color: var(--sub);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .booth-edit textarea {
+    resize: vertical;
+    min-height: 70px;
+  }
+
+  .save-bar {
+    max-width: 900px;
+    margin: 24px auto 0;
+    padding: 0 24px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .save-btn {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #060606;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 36px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <div class="preview-banner">
+    🔧 이 화면은 미리보기용입니다. 실제 서버 없이 이 브라우저의 localStorage에 저장되며, 여기서 저장한 내용은 preview-logged-in.html에도 반영됩니다.
+  </div>
+
+  <div class="login-wrap" id="loginWrap">
+    <div class="login-box">
+      <h1>🔧 컴퓨터과학부 관리자 로그인 (미리보기)</h1>
+      <p>미리보기 비밀번호: <b>admin1234</b></p>
+      <input type="password" id="passwordInput" placeholder="관리자 비밀번호">
+      <button class="login-btn" id="adminLoginBtn">로그인</button>
+      <div class="msg" id="loginMsg"></div>
+    </div>
+  </div>
+
+  <div id="adminPanel">
+    <div class="top-bar">
+      <a href="preview-logged-in.html">👀 부스 페이지 보기</a>
+      <button id="adminLogoutBtn">로그아웃</button>
+    </div>
+
+    <header>
+      <h1>🛠️ 부스 내용 관리 (미리보기)</h1>
+      <p>내용을 수정한 뒤 아래 "저장하기" 버튼을 눌러야 반영됩니다.</p>
+    </header>
+
+    <div class="booth-list" id="boothList"></div>
+
+    <div class="save-bar">
+      <button class="save-btn" id="saveBtn">저장하기</button>
+    </div>
+    <div class="msg" id="saveMsg" style="text-align:center; margin-top:10px;"></div>
+  </div>
+
+  <script>
+    // 미리보기 전용 데모 비밀번호 (실제 서비스는 ADMIN_PASSWORD 환경변수로 관리)
+    const DEMO_ADMIN_PASSWORD = 'admin1234';
+    const STORAGE_KEY = 'previewBoothsData';
+
+    const DEFAULT_BOOTHS = [
+      { emoji: "🍡", name: "부스1", location: "본관 1층 로비", tags: ["먹거리", "1반"], desc: "매콤달콤 떡볶이와 튀김, 순대를 파는 인기 먹거리 부스입니다. 학급 특제 소스로 만든 떡볶이를 맛보러 오세요!" },
+      { emoji: "🎯", name: "부스2", location: "운동장 A구역", tags: ["게임", "2반"], desc: "다트를 던져 점수에 따라 상품을 받아가는 게임 부스입니다. 3번 도전에 500원, 고득점 시 학용품 세트 증정!" },
+      { emoji: "🎨", name: "부스3", location: "본관 2층 미술실", tags: ["체험", "미술 동아리"], desc: "미술 동아리 학생들이 직접 그려주는 페이스 페인팅 체험 부스입니다. 원하는 캐릭터나 그림을 요청할 수 있어요." },
+      { emoji: "🔮", name: "부스4", location: "별관 3층 상담실", tags: ["체험", "3반"], desc: "타로 카드로 연애운, 학업운을 봐드리는 부스입니다. 대기 시간이 있을 수 있으니 미리 신청서를 작성해주세요." },
+      { emoji: "🎣", name: "부스5", location: "운동장 B구역", tags: ["게임", "4반"], desc: "고무줄 총으로 목표물을 맞히는 사격 게임입니다. 5발 중 3발 이상 명중하면 소정의 상품을 드립니다." },
+      { emoji: "📸", name: "부스6", location: "본관 1층 중앙홀", tags: ["체험", "방송부"], desc: "축제 컨셉의 배경과 소품으로 즉석 사진을 찍고 바로 인화해주는 포토존입니다. 인생샷을 남겨보세요!" },
+      { emoji: "🍧", name: "부스7", location: "본관 2층 휴게공간", tags: ["먹거리", "5반"], desc: "무더운 여름을 시원하게 즐길 수 있는 팥빙수와 음료를 판매하는 부스입니다. 다양한 토핑을 선택할 수 있어요." },
+      { emoji: "🎲", name: "부스8", location: "별관 2층 빈 교실", tags: ["체험", "과학 동아리"], desc: "과학 원리를 활용한 미니 방탈출 게임입니다. 제한 시간 10분 안에 문제를 풀고 탈출해보세요!" }
+    ];
+
+    const loginWrap = document.getElementById('loginWrap');
+    const adminPanel = document.getElementById('adminPanel');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginMsg = document.getElementById('loginMsg');
+    const boothList = document.getElementById('boothList');
+    const saveMsg = document.getElementById('saveMsg');
+
+    let booths = [];
+
+    function loadBooths() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        booths = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(DEFAULT_BOOTHS));
+      } catch (e) {
+        booths = JSON.parse(JSON.stringify(DEFAULT_BOOTHS));
+      }
+      renderBoothList();
+    }
+
+    function renderBoothList() {
+      boothList.innerHTML = booths.map((b, i) => `
+        <div class="booth-edit">
+          <div class="row">
+            <div class="emoji-input">
+              <span class="field-label">이모지</span>
+              <input type="text" data-field="emoji" data-index="${i}" value="${b.emoji}" maxlength="4">
+            </div>
+            <div style="flex:1">
+              <span class="field-label">부스명</span>
+              <input type="text" data-field="name" data-index="${i}" value="${b.name}">
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <span class="field-label">위치</span>
+              <input type="text" data-field="location" data-index="${i}" value="${b.location}">
+            </div>
+            <div style="flex:1">
+              <span class="field-label">태그 (쉼표로 구분)</span>
+              <input type="text" data-field="tags" data-index="${i}" value="${b.tags.join(', ')}">
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <span class="field-label">설명</span>
+              <textarea data-field="desc" data-index="${i}">${b.desc}</textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function collectBoothsFromForm() {
+      return booths.map((b, i) => {
+        const emoji = boothList.querySelector(`[data-field="emoji"][data-index="${i}"]`).value.trim();
+        const name = boothList.querySelector(`[data-field="name"][data-index="${i}"]`).value.trim();
+        const location = boothList.querySelector(`[data-field="location"][data-index="${i}"]`).value.trim();
+        const tags = boothList.querySelector(`[data-field="tags"][data-index="${i}"]`).value
+          .split(',').map(t => t.trim()).filter(Boolean);
+        const desc = boothList.querySelector(`[data-field="desc"][data-index="${i}"]`).value.trim();
+        return { emoji, name, location, tags, desc };
+      });
+    }
+
+    function adminLogin() {
+      const password = passwordInput.value.trim();
+      if (password !== DEMO_ADMIN_PASSWORD) {
+        loginMsg.textContent = '비밀번호가 올바르지 않습니다.';
+        loginMsg.className = 'msg err';
+        return;
+      }
+      loadBooths();
+      loginWrap.style.display = 'none';
+      adminPanel.classList.add('show');
+    }
+
+    function saveBooths() {
+      booths = collectBoothsFromForm();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(booths));
+      saveMsg.textContent = '✅ 저장되었습니다! (preview-logged-in.html에서 확인해보세요)';
+      saveMsg.className = 'msg ok';
+    }
+
+    document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
+    passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') adminLogin(); });
+    document.getElementById('saveBtn').addEventListener('click', saveBooths);
+    document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+      adminPanel.classList.remove('show');
+      loginWrap.style.display = 'flex';
+      passwordInput.value = '';
+      loginMsg.textContent = '';
+    });
+  </script>
+</body>
+</html>
