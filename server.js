@@ -17,6 +17,11 @@ if (!process.env.ADMIN_PASSWORD) {
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// 기본 경로(/) 접속 시 로그인 페이지로 자동 이동
+app.get('/', (req, res) => {
+  res.redirect('/login.html');
+});
+
 function readUsers() {
   try {
     return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
