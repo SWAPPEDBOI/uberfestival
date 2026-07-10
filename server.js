@@ -25,7 +25,8 @@ app.get('/', (req, res) => {
 function readUsers() {
   try {
     return JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-  } catch {
+  } catch (e) {
+    console.error('❌ readUsers 실패:', DATA_FILE, e.message);
     return [];
   }
 }
@@ -38,7 +39,8 @@ function writeUsers(users) {
 function readBooths() {
   try {
     return JSON.parse(fs.readFileSync(BOOTHS_FILE, 'utf-8'));
-  } catch {
+  } catch (e) {
+    console.error('❌ readBooths 실패:', BOOTHS_FILE, e.message);
     return [];
   }
 }
@@ -139,6 +141,38 @@ app.post('/api/complete', (req, res) => {
 // 부스 목록 조회 (공개)
 app.get('/api/booths', (req, res) => {
   res.json({ success: true, booths: readBooths() });
+});
+
+// 🔧 임시 진단용 엔드포인트 (문제 해결 후 삭제할 것)
+app.get('/api/debug', (req, res) => {
+  let dataDirList = null;
+  let dataDirError = null;
+  try {
+    dataDirList = fs.readdirSync(path.join(__dirname, 'data'));
+  } catch (e) {
+    dataDirError = e.message;
+  }
+
+  let boothsFileExists = fs.existsSync(BOOTHS_FILE);
+  let boothsFileRaw = null;
+  let boothsFileError = null;
+  try {
+    boothsFileRaw = fs.readFileSync(BOOTHS_FILE, 'utf-8');
+  } catch (e) {
+    boothsFileError = e.message;
+  }
+
+  res.json({
+    __dirname,
+    cwd: process.cwd(),
+    BOOTHS_FILE,
+    boothsFileExists,
+    dataDirList,
+    dataDirError,
+    boothsFileRawPreview: boothsFileRaw ? boothsFileRaw.slice(0, 200) : null,
+    boothsFileError,
+    rootDirList: fs.readdirSync(__dirname)
+  });
 });
 
 // 관리자 비밀번호 확인
