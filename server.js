@@ -6,6 +6,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data', 'users.json');
 const BOOTHS_FILE = path.join(__dirname, 'data', 'booths.json');
+// Volume이 마운트되지 않는 위치에 두는 "기본값" 시드 파일 (git으로 항상 배포됨)
+const SEED_BOOTHS_FILE = path.join(__dirname, 'seed-booths.json');
 const POINTS_PER_BOOTH = 100;
 const TOTAL_BOOTHS = 8;
 
@@ -16,6 +18,21 @@ if (!process.env.ADMIN_PASSWORD) {
 
 app.use(express.json());
 app.use(express.static(__dirname));
+
+// data 폴더(Volume)에 booths.json이 없으면, 시드 파일로 최초 1회 생성
+// (Railway Volume은 배포와 별개로 유지되는 디스크라서, git에 있는 data/booths.json이
+//  Volume에 가려질 수 있음 → 서버가 뜰 때 직접 채워넣어야 함)
+function ensureBoothsFile() {
+  if (fs.existsSync(BOOTHS_FILE)) return;
+  try {
+    const seed = JSON.parse(fs.readFileSync(SEED_BOOTHS_FILE, 'utf-8'));
+    writeBooths(seed);
+    console.log('✅ booths.json이 없어서 seed-booths.json으로 새로 생성했습니다.');
+  } catch (e) {
+    console.error('❌ seed-booths.json으로 초기화 실패:', e.message);
+  }
+}
+ensureBoothsFile();
 
 // 기본 경로(/) 접속 시 로그인 페이지로 자동 이동
 app.get('/', (req, res) => {
